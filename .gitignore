@@ -25,3 +25,5 @@ local*
 Local*
 *~
 *.swp
+.DS_Store
+
