@@ -21,46 +21,34 @@ source-repository head
   type:     git
   location: https://github.com/haskell-Z/snack
 
--- There are three main advantages to the terminfo backend over the portable,
--- "dumb" alternative.  First, it enables more efficient control sequences
--- when redrawing the input.  Second, and more importantly, it enables us
--- to draw on multiple lines, so we can wrap long input strings.  And third,
--- the backend adds some extra key sequences such as forwards delete.
---
--- (The "dumb" terminal also allows editing of long input strings, but is
--- restricted to only one line and thus only shows part of the input at once.)
-
-flag brick
-    Description: Build the Brick widget
-    Default: False
-    Manual: True
-
-Library
-    -- We require ghc>=7.4.1 (base>=4.5) to use the base library encodings, even
-    -- though it was implemented in earlier releases, due to GHC bug #5436 which
-    -- wasn't fixed until 7.4.1
+library
     hs-source-dirs: src
 
     Build-depends: base >=4.9 && < 4.17, containers>=0.4 && < 0.7,
-                   brick >= 0.17, vty >= 5.15, split >= 0.2, haskeline,
+                   brick >= 0.17, vty >= 5.15, split >= 0.2, 
                    text-zipper
     Default-Language: Haskell98
     Default-Extensions:
-                ForeignFunctionInterface, Rank2Types, FlexibleInstances,
-                TypeSynonymInstances
-                FlexibleContexts, ExistentialQuantification
-                ScopedTypeVariables, GeneralizedNewtypeDeriving
-                StandaloneDeriving
-                MultiParamTypeClasses,
-                UndecidableInstances
-                ScopedTypeVariables, CPP, DeriveDataTypeable,
-                PatternGuards
     Exposed-Modules:
                 Snack
     Other-Modules:
-                Snack.Completion
-                Snack.Editor
-                Snack.Main
-    include-dirs: includes
+                Snack.Event.Completion
+                Snack.Event.HandleEvent
+                Snack.Widget.Editor
+                Snack.Widget.CompletionBox
+                Snack.Widget.Render
+                Snack.Widget.Type
+                Snack.Terminal
 
     ghc-options: -Wall
+
+test-suite snack-test
+  type:               exitcode-stdio-1.0
+  main-is:            Spec.hs
+  hs-source-dirs:     test
+  build-depends:      base >= 4.11 && < 5, hspec, snack
+  default-language:   Haskell2010
+  build-tool-depends: hspec-discover:hspec-discover == 2.*
+  ghc-options:        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+                      -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
+                      -threaded -rtsopts -with-rtsopts=-N
