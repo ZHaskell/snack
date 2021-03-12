@@ -1,6 +1,7 @@
-module Snack.Terminal(
-  runSnackWithDefaultSetting
-) where
+module Snack.Terminal
+  ( runSnackWithDefaultSetting,
+  )
+where
 
 import qualified Brick.AttrMap as A
 import qualified Brick.Main as M
@@ -8,10 +9,10 @@ import qualified Brick.Types as T
 import Brick.Util
 import Control.Monad (void)
 import qualified Graphics.Vty as V
-import Snack.Event.Completion
-import Snack.Event.HandleEvent
-import Snack.Widget.Render
-import Snack.Widget.Type
+import Snack.Completion.Event
+import Snack.Handle.Event
+import Snack.Handle.Render
+import Snack.SnackWidget
 
 runSnackWithDefaultSetting :: (String -> IO [Completion]) -> IO ()
 runSnackWithDefaultSetting complete = do

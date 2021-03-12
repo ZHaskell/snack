@@ -1,11 +1,13 @@
-module Snack.Event.Completion(
-  CompletionFunc,
-  Completion(..),
-  completeWord,
-  useCompletion,
-  setReplacement,
-  noCompletion
-) where
+module Snack.Completion.Event
+  ( CompletionFunc,
+    Completion (..),
+    completeWord,
+    useCompletion,
+    setReplacement,
+    noCompletion,
+    simpleCompletion,
+  )
+where
 
 -- | Performs completions from the given line state.
 --
@@ -162,6 +164,4 @@ fallbackCompletion a b input = do
     else return aCompletions
 
 useCompletion :: Completion -> String
-useCompletion c
-  | isFinished c = replacement c ++ " "
-  | otherwise = replacement c
+useCompletion c = replacement c

@@ -24,21 +24,26 @@ source-repository head
 library
     hs-source-dirs: src
 
-    Build-depends: base >=4.9 && < 4.17, containers>=0.4 && < 0.7,
+    build-depends: base >=4.9 && < 4.17, containers>=0.4 && < 0.7,
                    brick >= 0.17, vty >= 5.15, split >= 0.2, 
-                   text-zipper
-    Default-Language: Haskell98
-    Default-Extensions:
-    Exposed-Modules:
+                   text-zipper, text, bytestring
+    default-language: Haskell98
+    default-extensions:
+    exposed-modules:
                 Snack
-    Other-Modules:
-                Snack.Event.Completion
-                Snack.Event.HandleEvent
-                Snack.Widget.Editor
-                Snack.Widget.CompletionBox
-                Snack.Widget.Render
-                Snack.Widget.Type
+    other-modules:
+                Snack.Completion.Event
+                Snack.Completion.State
+                Snack.CommandLine.Editor
+                Snack.CommandLine.Event
+                Snack.CommandLine.Generic
+                Snack.CommandLine.Value
+                Snack.Handle.Event 
+                Snack.Handle.Render
+                Snack.SnackWidget
+                Snack.CommandLine
                 Snack.Terminal
+                
 
     ghc-options: -Wall
 

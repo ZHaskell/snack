@@ -1,6 +1,8 @@
-module CompletionExample where 
+module CompletionExample where
+
+import Data.List (isPrefixOf)
 import Snack
-import Data.List (isPrefixOf )
+
 data Name = Terminal1 | Editor1 deriving (Eq, Ord, Show)
 
 snackList :: [[Char]]
