@@ -3,7 +3,8 @@
 module Snack.CommandLine.Generic where
 
 import qualified Data.Text as T
-import Prelude hiding (drop, init, last, length, lines, null, take)
+import           Prelude   hiding (drop, init, last, length, lines, null, take,
+                            words)
 import qualified Prelude
 
 class Monoid a => GenericCommandLineEditor a where
@@ -15,6 +16,7 @@ class Monoid a => GenericCommandLineEditor a where
   init :: a -> a
   null :: a -> Bool
   lines :: a -> [a]
+  words :: a -> [a]
   toList :: a -> [Char]
 
 instance GenericCommandLineEditor [Char] where
@@ -26,6 +28,7 @@ instance GenericCommandLineEditor [Char] where
   init = Prelude.init
   null = Prelude.null
   lines = Prelude.lines
+  words = Prelude.words
   toList = id
 
 instance GenericCommandLineEditor T.Text where
@@ -37,4 +40,5 @@ instance GenericCommandLineEditor T.Text where
   init = T.init
   null = T.null
   lines = T.lines
+  words = T.words
   toList = T.unpack

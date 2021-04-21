@@ -1,15 +1,13 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Snack.CommandLine.Editor where
 
-import Prelude hiding (drop, init, last, length, lines, null, take)
+import           Prelude hiding (drop, init, last, length, lines, null, take)
 import qualified Prelude
 
 data CommandLineEditor a = CLE
-  { toLeft :: a,
+  { toLeft  :: a,
     toRight :: a,
-    above :: [a],
-    below :: [a]
+    above   :: [a],
+    below   :: [a]
   }
   deriving (Eq, Show)
 
@@ -34,4 +32,4 @@ getText :: Monoid t => CommandLineEditor t -> [t]
 getText tz = above tz ++ (currentLine tz : below tz)
 
 currentLine :: Monoid t => CommandLineEditor t -> t
-currentLine tz = (toLeft tz) <> (toRight tz)
+currentLine tz = toLeft tz <> toRight tz

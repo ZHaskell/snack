@@ -1,22 +1,27 @@
+{-# LANGUAGE RecordWildCards #-}
 module Snack.Handle.Render
   ( renderSWidget,
   )
 where
 
-import Brick.AttrMap (attrName)
-import qualified Brick.Types as T
-import Brick.Widgets.Core
-import Snack.CommandLine
-import Snack.Completion.Event (CompletionFunc)
-import Snack.Completion.State
-import Snack.SnackWidget
+import           Brick.AttrMap          (attrName)
+import qualified Brick.Types            as T
+import           Brick.Widgets.Core     (TextWidth (..), padLeft, reportExtent,
+                                         showCursor, str, vBox, viewport,
+                                         visibleRegion, withDefAttr, (<=>))
+import           Snack.CommandLine      (CommandLine (commandLineName),
+                                         GenericCommandLineEditor, charAtCursor,
+                                         cursorRowContents,
+                                         getCommandLineContents, toLeft,
+                                         toRight)
+import           Snack.Completion.State (CompletionState (completionBox, completionInsert))
+import           Snack.SnackWidget      (SnackSettings (widgetName),
+                                         SnackWidget (..))
 
-renderCommandLine ::
-  (Ord n, Show n, Monoid t, TextWidth t, GenericCommandLineEditor t) =>
-  ([t] -> T.Widget n) ->
-  CommandLine t n ->
-  t ->
-  T.Widget n
+renderCommandLine :: (Ord n, Show n, Monoid t, TextWidth t, GenericCommandLineEditor t)
+                  => ([t] -> T.Widget n)
+                  -> CommandLine t n -> t
+                  -> T.Widget n
 renderCommandLine draw cl completion =
   let cursorLoc = T.Location (textWidth (toLeft cl), cursorRowContents cl)
       name = commandLineName cl
@@ -26,20 +31,20 @@ renderCommandLine draw cl completion =
    in showCursor name cursorLoc $
         visibleRegion cursorLoc (atCharWidth, 1) $
           draw $
-            contents ++ [getCurrentLine cl <> completion]
+            contents ++ [toLeft cl <> completion <> toRight cl]
 
-renderSWidget :: (Ord n, Show n) => SnackWidget n -> T.Widget n
-renderSWidget (SnackWidget n _ commandL completionS _) =
-  reportExtent n $ viewport n T.Vertical $ renderedCommandLine
+renderSWidget :: (Ord n, Show n) => SnackWidget n a -> T.Widget n
+renderSWidget SnackWidget { .. } =
+  reportExtent (widgetName snackSettings) $ viewport (widgetName snackSettings) T.Vertical renderedCommandLine
   where
-    renderedCommandLine = renderCommandLine ((<=> completionBar) . str . unlines) commandL selectedInsert
+    renderedCommandLine = renderCommandLine ((<=> completionBar) . str . unlines) commandLine selectedInsert
 
     completionBar =
-      padLeft ((T.Pad . length . toLeft) commandL) . withDefAttr (attrName "completionBar") $
+      padLeft ((T.Pad . length . toLeft) commandLine) . withDefAttr (attrName "completionBar") $
         vBox
           ( map (withDefAttr (attrName "completionBar") . str) before
               ++ (withDefAttr (attrName "selectedCompletion") . str) selected :
             map (withDefAttr (attrName "completionBar") . str) after
           )
-    (selected, before, after) = completionBox completionS
-    (selectedInsert, _, _) = completionInsert completionS
+    (selected, before, after) = completionBox completionState
+    (selectedInsert, _, _) = completionInsert completionState

@@ -1,59 +1,89 @@
 cabal-version:      2.2
 name:               snack
 version:            0.1.0.0
-synopsis:           Lightweight framework for building command-line applications.
-description:        Please see the README on Github at
-                    <https://github.com/haskell-Z/snack#readme>
+synopsis:
+  Lightweight framework for building command-line applications.
+
+description:
+  Please see the README on Github at
+  <https://github.com/haskell-Z/snack#readme>
+
 license:            BSD-3-Clause
 license-file:       LICENSE
 copyright:          Copyright (c) Judah Jacobson, Hu
 author:             hu, Judah Jacobson
 maintainer:         husj@emqx.io
-tested-with:        GHC == 8.10.3, GHC == 8.8.4, GHC == 8.6.5
+tested-with:        GHC ==8.6.5 || ==8.8.4 || ==8.10.3
 category:           User Interfaces
 homepage:           https://github.com/haskell-Z/snack
 bug-reports:        https://github.com/haskell-Z/snack/issues
 build-type:         Simple
-extra-source-files: README.md
-                    ChangeLog.md
+extra-source-files:
+  ChangeLog.md
+  README.md
 
 source-repository head
   type:     git
   location: https://github.com/haskell-Z/snack
 
 library
-    hs-source-dirs: src
+  hs-source-dirs:     src
+  build-depends:
+    , base                  >=4.9  && <4.17
+    , brick                 >=0.17
+    , bytestring
+    , containers            >=0.4  && <0.7
+    , optparse-applicative
+    , split                 >=0.2
+    , text
+    , text-zipper
+    , transformers
+    , vty                   >=5.15
 
-    build-depends: base >=4.9 && < 4.17, containers>=0.4 && < 0.7,
-                   brick >= 0.17, vty >= 5.15, split >= 0.2, 
-                   text-zipper, text, bytestring
-    default-language: Haskell98
-    default-extensions:
-    exposed-modules:
-                Snack
-    other-modules:
-                Snack.Completion.Event
-                Snack.Completion.State
-                Snack.CommandLine.Editor
-                Snack.CommandLine.Event
-                Snack.CommandLine.Generic
-                Snack.CommandLine.Value
-                Snack.Handle.Event 
-                Snack.Handle.Render
-                Snack.SnackWidget
-                Snack.CommandLine
-                Snack.Terminal
-                
+  default-language:   Haskell2010
+  default-extensions:
+  exposed-modules:    Snack
+  other-modules:
+    Snack.AppEvent
+    Snack.CommandLine
+    Snack.CommandLine.Editor
+    Snack.CommandLine.Event
+    Snack.CommandLine.Generic
+    Snack.CommandLine.Value
+    Snack.Completion
+    Snack.Completion.Event
+    Snack.Completion.State
+    Snack.Handle.Event
+    Snack.Handle.Render
+    Snack.Main
+    Snack.Parser
+    Snack.SnackWidget
 
-    ghc-options: -Wall
+  ghc-options:        -Wall
+
+executable example1
+  main-is:          Main.hs
+  hs-source-dirs:   example1
+  build-depends:
+    , base
+    , optparse-applicative
+    , snack
+
+  ghc-options:      -threaded
+  default-language: Haskell2010
 
 test-suite snack-test
   type:               exitcode-stdio-1.0
   main-is:            Spec.hs
   hs-source-dirs:     test
-  build-depends:      base >= 4.11 && < 5, hspec, snack
+  build-depends:
+    , base   >=4.11 && <5
+    , hspec
+    , snack
+
   default-language:   Haskell2010
-  build-tool-depends: hspec-discover:hspec-discover == 2.*
-  ghc-options:        -Wall -Wcompat -Widentities -Wincomplete-record-updates
-                      -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
-                      -threaded -rtsopts -with-rtsopts=-N
+  build-tool-depends: hspec-discover:hspec-discover ==2.*
+  ghc-options:
+    -Wall -Wcompat -Widentities -Wincomplete-record-updates
+    -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
+    -threaded -rtsopts -with-rtsopts=-N

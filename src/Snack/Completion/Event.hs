@@ -2,10 +2,12 @@ module Snack.Completion.Event
   ( CompletionFunc,
     Completion (..),
     completeWord,
+    completeWordWithPrev,
     useCompletion,
     setReplacement,
     noCompletion,
     simpleCompletion,
+    fallbackCompletion
   )
 where
 
@@ -23,10 +25,10 @@ data Completion = Completion
     replacement :: String,
     -- | Text to display when listing
     -- alternatives.
-    display :: String,
+    display     :: String,
     -- | Whether this word should be followed by a
     -- space, end quote, etc.
-    isFinished :: Bool
+    isFinished  :: Bool
   }
   deriving (Eq, Ord, Show)
 
@@ -69,7 +71,7 @@ completeWordWithPrev ::
 completeWordWithPrev esc ws f (line, _) = do
   let (word, rest) = case esc of
         Nothing -> break (`elem` ws) line
-        Just e -> escapedBreak e line
+        Just e  -> escapedBreak e line
   completions <- f rest (reverse word)
   return (rest, map (escapeReplacement esc ws) completions)
   where
@@ -77,18 +79,13 @@ completeWordWithPrev esc ws f (line, _) = do
       | d == e && c `elem` (e : ws) =
         let (xs, ys) = escapedBreak e cs in (c : xs, ys)
     escapedBreak e (c : cs)
-      | notElem c ws =
+      | c `notElem` ws =
         let (xs, ys) = escapedBreak e cs in (c : xs, ys)
     escapedBreak _ cs = ("", cs)
 
 -- | Create a finished completion out of the given word.
 simpleCompletion :: String -> Completion
 simpleCompletion = completion
-
--- NOTE: this is the same as for readline, except that I took out the '\\'
--- so they can be used as a path separator.
-filenameWordBreakChars :: String
-filenameWordBreakChars = " \t\n`@$><=;|&{("
 
 completion :: String -> Completion
 completion str = Completion str str True
@@ -99,60 +96,12 @@ setReplacement f c = c {replacement = f $ replacement c}
 escapeReplacement :: Maybe Char -> String -> Completion -> Completion
 escapeReplacement esc ws f = case esc of
   Nothing -> f
-  Just e -> f {replacement = escape e (replacement f)}
+  Just e  -> f {replacement = escape e (replacement f)}
   where
     escape e (c : cs)
       | c `elem` (e : ws) = e : c : escape e cs
       | otherwise = c : escape e cs
     escape _ "" = ""
-
----------
--- Quoted completion
-completeQuotedWord ::
-  Monad m =>
-  -- | An optional escape character
-  Maybe Char ->
-  -- | Characters which set off quotes
-  [Char] ->
-  -- | Function to produce a list of possible completions
-  (String -> m [Completion]) ->
-  -- | Alternate completion to perform if the
-  -- cursor is not at a quoted word
-  CompletionFunc m ->
-  CompletionFunc m
-completeQuotedWord esc qs completer alterative line@(left, _) =
-  case splitAtQuote esc qs left of
-    Just (w, rest) | isUnquoted esc qs rest -> do
-      cs <- completer (reverse w)
-      return (rest, map (addQuotes . escapeReplacement esc qs) cs)
-    _ -> alterative line
-
-addQuotes :: Completion -> Completion
-addQuotes c =
-  if isFinished c
-    then c {replacement = "\"" ++ replacement c ++ "\""}
-    else c {replacement = "\"" ++ replacement c}
-
-splitAtQuote :: Maybe Char -> String -> String -> Maybe (String, String)
-splitAtQuote esc qs line = case line of
-  c : e : cs | isEscape e && isEscapable c ->
-    do
-      (w, rest) <- splitAtQuote esc qs cs
-      return (c : w, rest)
-  q : cs | isQuote q -> Just ("", cs)
-  c : cs -> do
-    (w, rest) <- splitAtQuote esc qs cs
-    return (c : w, rest)
-  "" -> Nothing
-  where
-    isQuote = (`elem` qs)
-    isEscape c = Just c == esc
-    isEscapable c = isEscape c || isQuote c
-
-isUnquoted :: Maybe Char -> String -> String -> Bool
-isUnquoted esc qs s = case splitAtQuote esc qs s of
-  Just (_, s') -> not (isUnquoted esc qs s')
-  _ -> True
 
 -- | If the first completer produces no suggestions, fallback to the second
 -- completer's output.
@@ -164,4 +113,4 @@ fallbackCompletion a b input = do
     else return aCompletions
 
 useCompletion :: Completion -> String
-useCompletion c = replacement c
+useCompletion = replacement

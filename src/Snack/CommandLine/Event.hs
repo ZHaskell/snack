@@ -1,9 +1,9 @@
 module Snack.CommandLine.Event where
 
-import Data.Char (isPrint)
-import qualified Snack.CommandLine.Editor as E
+import           Data.Char                 (isPrint)
+import qualified Snack.CommandLine.Editor  as E
 import qualified Snack.CommandLine.Generic as G
-import qualified Snack.CommandLine.Value as V
+import qualified Snack.CommandLine.Value   as V
 
 -- | Design
 -- above [Input history]
@@ -23,7 +23,7 @@ applyCommandLineEvent f commandL = commandL {V.commandLineInput = (f . V.command
 insertChar :: G.GenericCommandLineEditor t => Char -> V.CommandLine t n -> V.CommandLine t n
 insertChar ch
   | ch == '\n' = breakLine
-  | isPrint ch = applyCommandLineEvent (\e -> e {E.toLeft = E.toLeft e <> (G.singleton ch)})
+  | isPrint ch = applyCommandLineEvent (\e -> e {E.toLeft = E.toLeft e <> G.singleton ch})
   | otherwise = id
 
 -- | Insert many characters at the current cursor position. Move the
@@ -31,7 +31,7 @@ insertChar ch
 insertMany :: G.GenericCommandLineEditor t => t -> V.CommandLine t n -> V.CommandLine t n
 insertMany str = go (G.toList str)
   where
-    go [] = id
+    go []       = id
     go (c : cs) = go cs . insertChar c
 
 -- | Remove all text from the cursor position to the beginning of the
@@ -157,7 +157,7 @@ insertToHistory x commandL@(V.CommandLine _ _ history _) = commandL {V.commandLi
 
 -- | Insert to the command line contents
 insertToContents :: G.GenericCommandLineEditor t => t -> V.CommandLine t n -> V.CommandLine t n
-insertToContents x commandL@(V.CommandLine _ contents _ _) = commandL {V.commandLineContents = contents ++ [x]}
+insertToContents x commandL@(V.CommandLine _ contents _ _) = commandL {V.commandLineContents = contents ++ G.lines x}
 
 breakLine :: G.GenericCommandLineEditor t => V.CommandLine t n -> V.CommandLine t n
 breakLine commandL@(V.CommandLine _ _ history _) =

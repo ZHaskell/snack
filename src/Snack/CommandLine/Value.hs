@@ -3,18 +3,18 @@
 
 module Snack.CommandLine.Value where
 
-import qualified Data.ByteString as BS
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as T
-import qualified Snack.CommandLine.Editor as E
+import qualified Data.ByteString           as BS
+import qualified Data.Text                 as T
+import qualified Data.Text.Encoding        as T
+import qualified Snack.CommandLine.Editor  as E
 import qualified Snack.CommandLine.Generic as E
 
 data CommandLine t n = CommandLine
-  { commandLineInput :: E.CommandLineEditor t,
+  { commandLineInput    :: E.CommandLineEditor t,
     -- | all of the command line contents, except the current line
     commandLineContents :: [t],
-    commandLineHistory :: [t],
-    commandLineName :: n
+    commandLineHistory  :: [t],
+    commandLineName     :: n
   }
 
 instance (Show t, Show n) => Show (CommandLine t n) where
@@ -41,7 +41,7 @@ class DecodeUtf8 t where
 
 instance DecodeUtf8 T.Text where
   decodeUtf8 bs = case T.decodeUtf8' bs of
-    Left e -> Left $ show e
+    Left e  -> Left $ show e
     Right t -> Right t
 
 instance DecodeUtf8 String where
@@ -49,7 +49,7 @@ instance DecodeUtf8 String where
 
 -- | initialize a command line
 initialCommandLine :: E.GenericCommandLineEditor t => n -> CommandLine t n
-initialCommandLine n = CommandLine (E.mkEditor []) [] [] n
+initialCommandLine = CommandLine (E.mkEditor []) mempty mempty
 
 -- cursorPosition :: CommandLine t n -> (Int, Int)
 

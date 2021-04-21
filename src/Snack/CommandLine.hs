@@ -5,6 +5,6 @@ module Snack.CommandLine
   )
 where
 
-import Snack.CommandLine.Event
-import Snack.CommandLine.Generic (GenericCommandLineEditor)
-import Snack.CommandLine.Value
+import           Snack.CommandLine.Event
+import           Snack.CommandLine.Generic (GenericCommandLineEditor (..))
+import           Snack.CommandLine.Value
